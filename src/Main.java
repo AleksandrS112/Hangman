@@ -1,3 +1,6 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.List;
 import java.util.Scanner;
 import java.util.ArrayList;
 
@@ -5,9 +8,9 @@ public class Main {
     public static void main(String[] args) {
         while (true) {
             System.out.println("Желаете начать новую игру введите букву \"Д\" или закончить игру букву \"Н\"" );
-            Scanner sc1 = new Scanner(System.in);
-            String str = sc1.nextLine();
-            switch (str.toUpperCase()) {
+            Scanner scanner = new Scanner(System.in);
+            String input = scanner.nextLine();
+            switch (input.toUpperCase()) {
                 case "Н":
                     return;
                 case "Д":
@@ -15,23 +18,33 @@ public class Main {
                     break;
                 default:
                     System.out.println("Неправильный ввод попробуйте еще.");
+                    break;
             }
         }
     }
 
     public static void startGame() {
-        ArrayList<String> pulSlov = new ArrayList();
-        pulSlov.add("маша"); pulSlov.add("паша"); pulSlov.add("даша");
-        pulSlov.add("миша"); pulSlov.add("саша");
-        int numberSlova = (int) (Math.random()*pulSlov.size());
-        char[] slovoArrChar = pulSlov.get(numberSlova).toCharArray();
-        char[] gameSlovoArrChar = new char[slovoArrChar.length];
-        for (int i=0 ; i<gameSlovoArrChar.length ; i++)
-            gameSlovoArrChar[i] = '_';
+        File FileWords = new File("words");
+        Scanner scannerWords = null;
+        try {
+           scannerWords = new Scanner(FileWords);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        List<String> ListWords = new ArrayList();
+        while(scannerWords.hasNextLine()) {
+            ListWords.add(scannerWords.nextLine());
+        }
+
+        int numberWord = (int) (Math.random()*ListWords.size());
+        char[] wordArrChar = ListWords.get(numberWord).toCharArray();
+        char[] gameWordArrChar = new char[wordArrChar.length];
+        for (int i=0 ; i<gameWordArrChar.length ; i++)
+            gameWordArrChar[i] = '_';
         System.out.println("\nПоехали !");
-        for (char ch: gameSlovoArrChar)
+        for (char ch: gameWordArrChar)
             System.out.print(ch);
-        System.out.println(" - слово из " +slovoArrChar.length + " букв.\n");
+        System.out.println(" - слово из " +wordArrChar.length + " букв.\n");
         int countMistake = 0;
         int countWin = 0;
         ArrayList<Character> mistakeLetterList = new ArrayList<>();
@@ -41,25 +54,25 @@ public class Main {
             if (Character.isLetter(letter.charAt(0)) && letter.length() == 1) {
                 char letterVerified = letter.toLowerCase().charAt(0);
                 boolean presenseLetter = false;
-                for (int i=0; i<slovoArrChar.length; i++) {
-                    if (letterVerified == slovoArrChar[i]) {
+                for (int i=0; i<wordArrChar.length; i++) {
+                    if (letterVerified == wordArrChar[i]) {
                         presenseLetter = true;
                         System.out.println("есть такая буква \"" +letterVerified + "\"." );
-                        countWin += displayProgressWord(letterVerified, slovoArrChar, gameSlovoArrChar);
+                        countWin += displayProgressWord(letterVerified, wordArrChar, gameWordArrChar);
                         break;
                     }
                 }
                 if (presenseLetter == false) {
                     if (mistakeLetterList.contains(letterVerified)) {
                         System.out.println("Вы уже пробовали букву \"" +letterVerified + "\", ее нет." );
-                        for (char ch : gameSlovoArrChar)
+                        for (char ch : gameWordArrChar)
                             System.out.print(ch);
                         System.out.println();
                     } else {
                         mistakeLetterList.add(letterVerified);
                         countMistake++;
                         System.out.println("Ошибка № " + countMistake);
-                        for (char ch : gameSlovoArrChar)
+                        for (char ch : gameWordArrChar)
                             System.out.print(ch);
                         System.out.println();
                         picture(countMistake);
@@ -69,7 +82,7 @@ public class Main {
                 System.out.println("Попробуйте ввести ещё раз, но только уже букву и только одну !");
             }
             System.out.println("Отгадано букв " + countWin + "\n");
-            if (Integer.valueOf(countWin) == slovoArrChar.length) {
+            if (Integer.valueOf(countWin) == wordArrChar.length) {
                 System.out.println("Игра окончена вы ВЫИГРАЛИ");
                 break;
             }
